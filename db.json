@@ -19,6 +19,26 @@
       "dob": "1999-10-12",
       "college": "IIT Delhi",
       "qualification": "MCA"
+    },
+    {
+      "id": "f60c",
+      "firstName": "paidipalli",
+      "lastName": "chaitanya ",
+      "email": "boom86914@gmail.com",
+      "mobile": "7013528858",
+      "dob": "2025-11-18",
+      "college": "srm",
+      "qualification": "b tech"
+    },
+    {
+      "id": "9919",
+      "firstName": "paidipalli chp",
+      "lastName": "naga chaitanya ",
+      "email": "boom86914@gmail.com",
+      "mobile": "7013528858",
+      "dob": "2025-11-11",
+      "college": "vignan",
+      "qualification": "b techr"
     }
   ]
 }

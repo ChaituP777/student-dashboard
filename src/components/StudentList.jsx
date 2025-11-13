@@ -1,28 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { getStudents, deleteStudent } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
-const StudentList = () => {
+export default function StudentList() {
   const [students, setStudents] = useState([]);
+  const navigate = useNavigate(); // 👈 React Router navigation
 
   useEffect(() => {
     fetchStudents();
   }, []);
 
   const fetchStudents = async () => {
-    const response = await getStudents();
-    setStudents(response.data);
+    try {
+      const data = await getStudents();
+      setStudents(data);
+    } catch (error) {
+      console.error("Failed to load students:", error);
+    }
   };
 
   const handleDelete = async (id) => {
-    await deleteStudent(id);
-    fetchStudents();
+    try {
+      await deleteStudent(id);
+      fetchStudents(); // reload list
+    } catch (error) {
+      console.error("Delete failed:", error);
+    }
   };
 
   return (
     <div>
       <h2>🎓 Student Dashboard</h2>
+
+      {/* 👇 React Router navigation instead of window.location.href */}
       <button
-        onClick={() => (window.location.href = "/add-student")}
+        onClick={() => navigate("/add")}
         style={{ marginBottom: "10px" }}
       >
         ➕ Add New Student
@@ -32,8 +44,8 @@ const StudentList = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>First Name</th>
-            <th>Last Name</th>
+            <th>First</th>
+            <th>Last</th>
             <th>Email</th>
             <th>Mobile</th>
             <th>DOB</th>
@@ -42,7 +54,14 @@ const StudentList = () => {
             <th>Actions</th>
           </tr>
         </thead>
+
         <tbody>
+          {students.length === 0 && (
+            <tr>
+              <td colSpan="9">No students found</td>
+            </tr>
+          )}
+
           {students.map((s) => (
             <tr key={s.id}>
               <td>{s.id}</td>
@@ -53,13 +72,16 @@ const StudentList = () => {
               <td>{s.dob}</td>
               <td>{s.college}</td>
               <td>{s.qualification}</td>
+
               <td>
-                <button
-                  onClick={() => (window.location.href = `/edit-student/${s.id}`)}
-                >
+                {/* 👇 Edit using React Router */}
+                <button onClick={() => navigate(`/edit/${s.id}`)}>
                   ✏️ Edit
                 </button>
-                <button onClick={() => handleDelete(s.id)}>🗑️ Delete</button>
+
+                <button onClick={() => handleDelete(s.id)}>
+                  🗑️ Delete
+                </button>
               </td>
             </tr>
           ))}
@@ -67,6 +89,4 @@ const StudentList = () => {
       </table>
     </div>
   );
-};
-
-export default StudentList;
+}
