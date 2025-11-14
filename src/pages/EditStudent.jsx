@@ -1,46 +1,50 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import StudentForm from "../components/StudentForm";
-import { getStudents, updateStudent } from "../services/api";
+import { getStudent, updateStudent } from "../services/api";
+import { toast } from "react-toastify";
 
 export default function EditStudent() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const load = async () => {
       try {
-        const all = await getStudents();
-        const existing = all.find(s => s.id.toString() === id.toString());
-        if (existing) setStudent(existing);
-        else alert("Student not found");
+        setLoading(true);
+        const data = await getStudent(id);
+        setStudent(data);
       } catch (err) {
         console.error(err);
+        toast.error("Failed to load student");
+      } finally {
+        setLoading(false);
       }
     };
-    fetchData();
+    load();
   }, [id]);
 
   const handleUpdate = async (data) => {
     try {
       await updateStudent(id, data);
-      alert("✅ Student updated successfully!");
-      navigate("/"); // 👈 redirect to dashboard
-    } catch (error) {
-      console.error("Update failed:", error);
-      alert("❌ Failed to update student.");
+      toast.success("Student updated");
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      toast.error("Update failed");
     }
   };
 
+  if (loading) return <div><p>Loading...</p></div>;
+
   return (
     <div>
-      <h2>Edit Student</h2>
-      {student ? (
+      <h3>Edit Student</h3>
+      <div className="card p-3">
         <StudentForm initial={student} onSubmit={handleUpdate} submitLabel="Update Student" />
-      ) : (
-        <p>Loading student details...</p>
-      )}
+      </div>
     </div>
   );
 }

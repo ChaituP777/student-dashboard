@@ -15,30 +15,20 @@
       "firstName": "Priya",
       "lastName": "Sharma",
       "email": "priya.sharma@gmail.com",
-      "mobile": "9123456789",
+      "mobile": "9123456780",
       "dob": "1999-10-12",
       "college": "IIT Delhi",
-      "qualification": "MCA"
+      "qualification": "MCb"
     },
     {
-      "id": "f60c",
-      "firstName": "paidipalli",
+      "id": "a214",
+      "firstName": "p",
       "lastName": "chaitanya ",
       "email": "boom86914@gmail.com",
       "mobile": "7013528858",
-      "dob": "2025-11-18",
+      "dob": "2004-10-28",
       "college": "srm",
       "qualification": "b tech"
-    },
-    {
-      "id": "9919",
-      "firstName": "paidipalli chp",
-      "lastName": "naga chaitanya ",
-      "email": "boom86914@gmail.com",
-      "mobile": "7013528858",
-      "dob": "2025-11-11",
-      "college": "vignan",
-      "qualification": "b techr"
     }
   ]
 }

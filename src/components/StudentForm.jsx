@@ -1,7 +1,7 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 
 const StudentForm = forwardRef(({ initial = {}, onSubmit, submitLabel = "Save" }, ref) => {
-  const [form, setForm] = useState({
+  const empty = {
     firstName: "",
     lastName: "",
     email: "",
@@ -9,20 +9,13 @@ const StudentForm = forwardRef(({ initial = {}, onSubmit, submitLabel = "Save" }
     dob: "",
     college: "",
     qualification: "",
-  });
+  };
 
-  // 👇 Expose a reset method to parent
+  const [form, setForm] = useState(empty);
+
   useImperativeHandle(ref, () => ({
     resetForm() {
-      setForm({
-        firstName: "",
-        lastName: "",
-        email: "",
-        mobile: "",
-        dob: "",
-        college: "",
-        qualification: "",
-      });
+      setForm(empty);
     },
   }));
 
@@ -30,6 +23,7 @@ const StudentForm = forwardRef(({ initial = {}, onSubmit, submitLabel = "Save" }
     if (initial && Object.keys(initial).length > 0) {
       setForm(initial);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // run once
 
   const handleChange = (e) => {
@@ -47,44 +41,46 @@ const StudentForm = forwardRef(({ initial = {}, onSubmit, submitLabel = "Save" }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 600 }}>
-      <div>
-        <label>First Name<br />
-          <input name="firstName" value={form.firstName} onChange={handleChange} />
-        </label>
-      </div>
-      <div>
-        <label>Last Name<br />
-          <input name="lastName" value={form.lastName} onChange={handleChange} />
-        </label>
-      </div>
-      <div>
-        <label>Email<br />
-          <input name="email" value={form.email} onChange={handleChange} />
-        </label>
-      </div>
-      <div>
-        <label>Mobile<br />
-          <input name="mobile" value={form.mobile} onChange={handleChange} />
-        </label>
-      </div>
-      <div>
-        <label>DOB<br />
-          <input type="date" name="dob" value={form.dob} onChange={handleChange} />
-        </label>
-      </div>
-      <div>
-        <label>College<br />
-          <input name="college" value={form.college} onChange={handleChange} />
-        </label>
-      </div>
-      <div>
-        <label>Qualification<br />
-          <input name="qualification" value={form.qualification} onChange={handleChange} />
-        </label>
-      </div>
-      <div style={{ marginTop: 12 }}>
-        <button type="submit">{submitLabel}</button>
+    <form onSubmit={handleSubmit}>
+      <div className="row g-3">
+        <div className="col-md-6">
+          <label className="form-label">First Name</label>
+          <input name="firstName" value={form.firstName} onChange={handleChange} className="form-control" />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Last Name</label>
+          <input name="lastName" value={form.lastName} onChange={handleChange} className="form-control" />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Email</label>
+          <input name="email" value={form.email} onChange={handleChange} className="form-control" />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Mobile</label>
+          <input name="mobile" value={form.mobile} onChange={handleChange} className="form-control" />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">DOB</label>
+          <input type="date" name="dob" value={form.dob} onChange={handleChange} className="form-control" />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">College</label>
+          <input name="college" value={form.college} onChange={handleChange} className="form-control" />
+        </div>
+
+        <div className="col-md-12">
+          <label className="form-label">Qualification</label>
+          <input name="qualification" value={form.qualification} onChange={handleChange} className="form-control" />
+        </div>
+
+        <div className="col-12 mt-2 d-flex justify-content-end">
+          <button type="submit" className="btn btn-success">{submitLabel}</button>
+        </div>
       </div>
     </form>
   );
