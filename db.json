@@ -1,34 +1,13 @@
 {
   "students": [
     {
-      "id": "1",
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "john.doe@gmail.com",
-      "mobile": "9876543210",
-      "dob": "2000-05-20",
-      "college": "MIT",
-      "qualification": "B.Tech"
-    },
-    {
-      "id": "2",
-      "firstName": "Priya",
-      "lastName": "Sharma",
-      "email": "priya.sharma@gmail.com",
-      "mobile": "9123456780",
-      "dob": "1999-10-12",
-      "college": "IIT Delhi",
-      "qualification": "MCb"
-    },
-    {
-      "id": "a214",
-      "firstName": "p",
+      "firstName": "paidipalli ",
       "lastName": "chaitanya ",
       "email": "boom86914@gmail.com",
       "mobile": "7013528858",
       "dob": "2004-10-28",
-      "college": "srm",
-      "qualification": "b tech"
+      "qualifications": [],
+      "id": "mi2z2ek2"
     }
   ]
 }

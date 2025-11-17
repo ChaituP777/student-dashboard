@@ -1,49 +1,57 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import StudentForm from "../components/StudentForm";
-import { getStudent, updateStudent } from "../services/api";
-import { toast } from "react-toastify";
+import { getStudents, updateStudent } from "../services/api";
 
 export default function EditStudent() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [student, setStudent] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [updatedStudent, setUpdatedStudent] = useState(null);
 
   useEffect(() => {
     const load = async () => {
-      try {
-        setLoading(true);
-        const data = await getStudent(id);
-        setStudent(data);
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load student");
-      } finally {
-        setLoading(false);
+      const all = await getStudents();
+      const found = all.find((s) => s.id === id);
+
+      if (found) {
+        setStudent(found);
+        setUpdatedStudent(found);
       }
     };
+
     load();
   }, [id]);
 
-  const handleUpdate = async (data) => {
-    try {
-      await updateStudent(id, data);
-      toast.success("Student updated");
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      toast.error("Update failed");
-    }
+  const handleSave = async () => {
+    await updateStudent(id, updatedStudent);
+    navigate("/");
   };
 
-  if (loading) return <div><p>Loading...</p></div>;
-
   return (
-    <div>
-      <h3>Edit Student</h3>
-      <div className="card p-3">
-        <StudentForm initial={student} onSubmit={handleUpdate} submitLabel="Update Student" />
+    <div className="container">
+      <div className="card">
+        <h2>Edit Student Details</h2>
+
+        {student ? (
+          <>
+            <StudentForm
+              initial={student}
+              onChange={(data) => setUpdatedStudent(data)}
+            />
+
+            <button
+              className="btn btn-primary full-btn"
+              onClick={handleSave}
+              style={{ marginTop: "20px" }}
+            >
+              Save Student Details
+            </button>
+          </>
+        ) : (
+          <p>Loading...</p>
+        )}
       </div>
     </div>
   );

@@ -1,44 +1,45 @@
 import React from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, NavLink } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import AddStudent from "./pages/AddStudent";
 import EditStudent from "./pages/EditStudent";
-import "./App.css";
+import EditQualification from "./pages/EditQualification"; // ← REQUIRED IMPORT
 
 export default function App() {
   return (
-    <div className="app-wrapper">
-
-      {/* TOP NAVBAR */}
-      <nav className="navbar-container">
-        <div className="nav-inner">
-
-          <Link
+    <>
+      {/* NAVBAR */}
+      <div className="navbar">
+        <div className="nav-center">
+          <NavLink
             to="/"
-            className="nav-btn"
+            className={({ isActive }) =>
+              isActive ? "nav-link nav-active" : "nav-link"
+            }
           >
             Dashboard
-          </Link>
+          </NavLink>
 
-          <Link
+          <NavLink
             to="/add"
-            className="nav-btn"
+            className={({ isActive }) =>
+              isActive ? "nav-link nav-active" : "nav-link"
+            }
           >
-            Add Student
-          </Link>
-
+            Add New Student
+          </NavLink>
         </div>
-      </nav>
-
-      {/* PAGE CONTENT */}
-      <div className="page-content">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/add" element={<AddStudent />} />
-          <Route path="/edit/:id" element={<EditStudent />} />
-        </Routes>
       </div>
 
-    </div>
+      {/* PAGE ROUTES */}
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/add" element={<AddStudent />} />
+        <Route path="/edit/:id" element={<EditStudent />} />
+
+        {/* NEW ROUTE FOR QUALIFICATION EDITING */}
+        <Route path="/edit-qualification/:id" element={<EditQualification />} />
+      </Routes>
+    </>
   );
 }

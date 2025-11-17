@@ -1,31 +1,42 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import StudentForm from "../components/StudentForm";
+import QualificationForm from "../components/QualificationForm";
 import { addStudent } from "../services/api";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
 export default function AddStudent() {
   const navigate = useNavigate();
-  const formRef = useRef(null);
 
-  const handleAdd = async (data) => {
-    try {
-      await addStudent(data);
-      toast.success("Student added");
-      if (formRef.current) formRef.current.resetForm();
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to add");
+  const [student, setStudent] = useState({});
+  const [qualifications, setQualifications] = useState([]);
+
+  const handleSubmit = async () => {
+    if (!qualifications.length) {
+      alert("Please add at least one qualification.");
+      return;
     }
+
+    const finalData = {
+      ...student,
+      qualifications,
+    };
+
+    await addStudent(finalData);
+    navigate("/");
   };
 
   return (
-    <div>
-      <h3>Add Student</h3>
-      <div className="card p-3">
-        <StudentForm ref={formRef} onSubmit={handleAdd} submitLabel="Add Student" />
+    <div className="container">
+      <StudentForm onChange={setStudent} />
+
+      <div className="card" style={{ marginTop: "20px" }}>
+        <h2>Education Qualifications</h2>
+        <QualificationForm onChange={setQualifications} />
       </div>
+
+      <button className="btn btn-primary full-btn" onClick={handleSubmit}>
+        Save Student
+      </button>
     </div>
   );
 }

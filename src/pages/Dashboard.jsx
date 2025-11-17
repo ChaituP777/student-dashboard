@@ -1,159 +1,199 @@
 import React, { useEffect, useState } from "react";
-import { getStudents, deleteStudent } from "../services/api";
+import { getStudents, deleteStudent, updateStudent } from "../services/api";
 import { useNavigate } from "react-router-dom";
-import Skeleton from "react-loading-skeleton";
-import { toast } from "react-toastify";
-import Modal from "react-modal";
-
-Modal.setAppElement("#root");
 
 export default function Dashboard() {
   const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [deleteId, setDeleteId] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const fetchStudents = async () => {
-    try {
-      setLoading(true);
-      const data = await getStudents();
-      setStudents(data || []);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load students");
-    } finally {
-      setLoading(false);
-    }
+  const fetchData = async () => {
+    const data = await getStudents();
+    setStudents(data || []);
   };
 
   useEffect(() => {
-    fetchStudents();
+    fetchData();
   }, []);
 
-  const confirmDelete = (id) => {
-    setDeleteId(id);
-    setIsModalOpen(true);
-  };
+  // Flatten qualifications and include index for delete option
+  const qualificationRows = students.flatMap((s) => {
+    const quals = s.qualifications || [];
 
-  const doDelete = async () => {
-    try {
-      await deleteStudent(deleteId);
-      toast.success("Student deleted");
-      setIsModalOpen(false);
-      setDeleteId(null);
-      setStudents((s) => s.filter((x) => x.id !== deleteId));
-    } catch (err) {
-      console.error(err);
-      toast.error("Delete failed");
+    if (!quals.length) {
+      return [
+        {
+          studentId: s.id,
+          name: `${s.firstName} ${s.lastName}`,
+          college: "N/A",
+          qualification: "N/A",
+          yearPassing: "N/A",
+          percentage: "N/A",
+          duration: "N/A",
+          index: null,
+        },
+      ];
     }
+
+    return quals.map((q, index) => ({
+      studentId: s.id,
+      name: `${s.firstName} ${s.lastName}`,
+      college: q.college || "N/A",
+      qualification: q.qualification || "N/A",
+      yearPassing: q.yearPassing || "N/A",
+      percentage: q.percentage || "N/A",
+      duration:
+        q.startDate && q.endDate ? `${q.startDate} → ${q.endDate}` : "N/A",
+      index,
+    }));
+  });
+
+  const handleDeleteQualification = async (studentId, qIndex) => {
+    if (qIndex === null) return;
+
+    const student = students.find((s) => s.id === studentId);
+    if (!student) return;
+
+    const updatedQualifications = student.qualifications.filter(
+      (_, i) => i !== qIndex
+    );
+
+    const updatedStudent = {
+      ...student,
+      qualifications: updatedQualifications,
+    };
+
+    await updateStudent(studentId, updatedStudent);
+    fetchData();
   };
 
   return (
-    <div className="d-flex justify-content-center mt-4">
-      <div className="p-4 shadow-lg rounded-4 bg-white w-100" style={{ maxWidth: "1100px" }}>
-        
-        {/* Header */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="fw-bold text-primary mb-0">📘 Student Dashboard</h2>
+    <div className="container">
 
-          <button
-            className="btn btn-primary px-4 py-2 d-flex align-items-center gap-2"
-            onClick={() => navigate("/add")}
-          >
-            <span style={{ fontSize: "1.2rem" }}>＋</span>
-            Add New Student
-          </button>
-        </div>
+      {/* STUDENT TABLE */}
+      <div className="card">
+        <h1>Student Dashboard</h1>
 
-        {/* Table Section */}
-        {loading ? (
-          <Skeleton height={30} count={6} />
-        ) : (
-          <div className="table-responsive">
-            <table className="table table-hover text-center align-middle">
-              <thead className="table-primary">
-                <tr>
-                  <th>ID</th>
-                  <th>First</th>
-                  <th>Last</th>
-                  <th>Email</th>
-                  <th>Mobile</th>
-                  <th>DOB</th>
-                  <th>College</th>
-                  <th>Qualification</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
+        <button className="btn btn-primary" onClick={() => navigate("/add")}>
+          Add New Student
+        </button>
 
-              <tbody>
-                {students.length === 0 && (
-                  <tr>
-                    <td colSpan="9" className="text-muted py-4">
-                      No students found
-                    </td>
-                  </tr>
-                )}
+        <table className="table" style={{ marginTop: "12px" }}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>First</th>
+              <th>Last</th>
+              <th>Email</th>
+              <th>Mobile</th>
+              <th>DOB</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
 
-                {students.map((s) => (
-                  <tr key={s.id}>
-                    <td className="fw-semibold">{s.id}</td>
-                    <td>{s.firstName}</td>
-                    <td>{s.lastName}</td>
-                    <td>{s.email}</td>
-                    <td>{s.mobile}</td>
-                    <td>{s.dob}</td>
-                    <td>{s.college}</td>
-                    <td>{s.qualification}</td>
-                    <td>
-                      <button
-                        className="btn btn-sm btn-outline-primary me-2"
-                        onClick={() => navigate(`/edit/${s.id}`)}
-                      >
-                        ✏ Edit
-                      </button>
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => confirmDelete(s.id)}
-                      >
-                        🗑 Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+          <tbody>
+            {students.map((s) => (
+              <tr key={s.id}>
+                <td>{s.id}</td>
+                <td>{s.firstName}</td>
+                <td>{s.lastName}</td>
+                <td>{s.email}</td>
+                <td>{s.mobile}</td>
+                <td>{s.dob}</td>
 
-        {/* Delete Modal */}
-        <Modal
-          isOpen={isModalOpen}
-          onRequestClose={() => setIsModalOpen(false)}
-          style={{
-            content: {
-              maxWidth: "400px",
-              margin: "auto",
-              borderRadius: "12px",
-              padding: "25px",
-              textAlign: "center",
-            },
-          }}
-        >
-          <h4 className="fw-bold mb-3">Confirm Delete</h4>
-          <p className="text-muted">Are you sure you want to remove this student?</p>
+                <td className="action-btns">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => navigate(`/edit/${s.id}`)}
+                  >
+                    Edit
+                  </button>
 
-          <div className="d-flex justify-content-center gap-3 mt-4">
-            <button className="btn btn-secondary px-4" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </button>
-            <button className="btn btn-danger px-4" onClick={doDelete}>
-              Delete
-            </button>
-          </div>
-        </Modal>
-
+                  <button
+                    className="btn btn-danger"
+                    onClick={async () => {
+                      await deleteStudent(s.id);
+                      fetchData();
+                    }}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+
+      {/* QUALIFICATION TABLE */}
+      <div className="card" style={{ marginTop: "30px" }}>
+        <h2>Education Qualifications</h2>
+
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>College</th>
+              <th>Qualification</th>
+              <th>Year</th>
+              <th>Percentage / CGPA</th>
+              <th>Duration</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {qualificationRows.map((r, i) => (
+              <tr key={i}>
+                <td>{r.studentId}</td>
+                <td>{r.name}</td>
+                <td>{r.college}</td>
+                <td>{r.qualification}</td>
+                <td>{r.yearPassing}</td>
+                <td>{r.percentage}</td>
+                <td>{r.duration}</td>
+
+                <td className="action-btns">
+
+                  {/* Edit (enabled only if qualification exists) */}
+                  <button
+                    className="btn btn-primary"
+                    disabled={r.index === null}
+                    onClick={() =>
+                      navigate(`/edit-qualification/${r.studentId}`)
+                    }
+                  >
+                    Edit
+                  </button>
+
+                  {/* Delete (enabled only if qualification exists) */}
+                  <button
+                    className="btn btn-danger"
+                    disabled={r.index === null}
+                    onClick={() =>
+                      handleDeleteQualification(r.studentId, r.index)
+                    }
+                  >
+                    Delete
+                  </button>
+
+                  {/* Add (always enabled) */}
+                  <button
+                    className="btn btn-success"
+                    onClick={() =>
+                      navigate(`/edit-qualification/${r.studentId}`)
+                    }
+                  >
+                    Add
+                  </button>
+
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
     </div>
   );
 }

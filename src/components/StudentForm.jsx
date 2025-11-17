@@ -1,88 +1,69 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useImperativeHandle, useState, useEffect } from "react";
 
-const StudentForm = forwardRef(({ initial = {}, onSubmit, submitLabel = "Save" }, ref) => {
-  const empty = {
+const StudentForm = forwardRef(({ initial, onChange }, ref) => {
+  const [student, setStudent] = useState({
     firstName: "",
     lastName: "",
     email: "",
     mobile: "",
     dob: "",
-    college: "",
-    qualification: "",
-  };
-
-  const [form, setForm] = useState(empty);
-
-  useImperativeHandle(ref, () => ({
-    resetForm() {
-      setForm(empty);
-    },
-  }));
+  });
 
   useEffect(() => {
-    if (initial && Object.keys(initial).length > 0) {
-      setForm(initial);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once
+    if (initial) setStudent(initial);
+  }, [initial]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  useImperativeHandle(ref, () => ({
+    getStudentData: () => student,
+    resetForm: () =>
+      setStudent({
+        firstName: "",
+        lastName: "",
+        email: "",
+        mobile: "",
+        dob: "",
+      }),
+  }));
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.firstName || !form.email) {
-      alert("Please provide at least first name and email.");
-      return;
-    }
-    onSubmit(form);
+  const update = (e) => {
+    const updated = { ...student, [e.target.name]: e.target.value };
+    setStudent(updated);
+    onChange(updated);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="row g-3">
-        <div className="col-md-6">
-          <label className="form-label">First Name</label>
-          <input name="firstName" value={form.firstName} onChange={handleChange} className="form-control" />
-        </div>
+    <div className="form-card">
+      <h2 className="form-title">Student Details</h2>
 
-        <div className="col-md-6">
-          <label className="form-label">Last Name</label>
-          <input name="lastName" value={form.lastName} onChange={handleChange} className="form-control" />
+      <div className="form-row">
+        <div className="col">
+          <label>First Name</label>
+          <input name="firstName" value={student.firstName} onChange={update} />
         </div>
-
-        <div className="col-md-6">
-          <label className="form-label">Email</label>
-          <input name="email" value={form.email} onChange={handleChange} className="form-control" />
-        </div>
-
-        <div className="col-md-6">
-          <label className="form-label">Mobile</label>
-          <input name="mobile" value={form.mobile} onChange={handleChange} className="form-control" />
-        </div>
-
-        <div className="col-md-6">
-          <label className="form-label">DOB</label>
-          <input type="date" name="dob" value={form.dob} onChange={handleChange} className="form-control" />
-        </div>
-
-        <div className="col-md-6">
-          <label className="form-label">College</label>
-          <input name="college" value={form.college} onChange={handleChange} className="form-control" />
-        </div>
-
-        <div className="col-md-12">
-          <label className="form-label">Qualification</label>
-          <input name="qualification" value={form.qualification} onChange={handleChange} className="form-control" />
-        </div>
-
-        <div className="col-12 mt-2 d-flex justify-content-end">
-          <button type="submit" className="btn btn-success">{submitLabel}</button>
+        <div className="col">
+          <label>Last Name</label>
+          <input name="lastName" value={student.lastName} onChange={update} />
         </div>
       </div>
-    </form>
+
+      <div className="form-row">
+        <div className="col">
+          <label>Email</label>
+          <input name="email" value={student.email} onChange={update} />
+        </div>
+        <div className="col">
+          <label>Mobile</label>
+          <input name="mobile" value={student.mobile} onChange={update} />
+        </div>
+      </div>
+
+      <div className="form-row">
+        <div className="col">
+          <label>Date of Birth</label>
+          <input type="date" name="dob" value={student.dob} onChange={update} />
+        </div>
+      </div>
+    </div>
   );
 });
 
